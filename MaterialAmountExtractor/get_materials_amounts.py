@@ -1,6 +1,4 @@
 import os
-import json
-from bson import json_util
 from nltk.parse import stanford
 import chemdataextractor as CDE
 from chemdataextractor.doc import Paragraph
@@ -11,7 +9,7 @@ import copy
 oe = OperationsExtractor()
 
 
-class get_materials_amounts:
+class GetMaterialsAmounts:
     def __init__(self, sentence, materials_in_sentence):
         self.sentence = sentence
         self.materials_in_sentence = materials_in_sentence
@@ -573,7 +571,7 @@ if __name__ == "__main__":
 
     sentence = "Then, a suitable volume of NH4F solution (1.0 mol L−1) was added to the above solution to let the concentration of NH4F in the solution be at 0.25 mol L−1."
     # cut_list = ["and", "to", "presence", "into", "at the same time", ":"]  # with?
-    m_m = get_materials_amounts(sentence, materials_in_sentence)
+    m_m = GetMaterialsAmounts(sentence, materials_in_sentence)
     # sent_toks = m_m.get_sent_tokens()
     # m_m.get_new_cut_list()
     print(m_m.final_result())
@@ -645,66 +643,66 @@ if __name__ == "__main__":
     #     json.dump(all_paragraphs_info, fw, indent=2, default=json_util.default)
     # print(len(all_paragraphs_info))
 
-    with open("filtered_large_data2.json", encoding="utf-8") as f:
-        test = json.load(f)
-        paragraph_number = 0
-        all_paragraphs_info = []
-        print(len(test))
-        for element in test:
-            try:
-                paragraph_info = {}
-                paragraph_number += 1
-                materials_and_amounts_in_paragraph = {}
-                print(paragraph_number)
-                paragraph = element["paragraph_text"]
-                materials_list = element["materials"]["all_materials"]
-                # print(materials_list)
-                paragraph_info["DOI"] = element["doi"]
-                paragraph_info["paragraph"] = paragraph
-                paragraph_info["materials"] = [p["text"] for p in materials_list]
-                targets_list1 = element["materials"]["target"]
-                targets_list2 = element["abstract_materials"]["target"]
-                if targets_list1:
-                    targets_list = targets_list1
-                else:
-                    targets_list = targets_list2
-                paragraph_info["targets"] = [p["text"] for p in targets_list]
-                print(paragraph_info["targets"])
-                sentences = CDEcutsentences(paragraph)
-                for sentence in sentences:
-                    materials_and_amounts = {}
-                    materials_in_sentence = materialsinsentence(
-                        sentence, materials_list
-                    )
-                    # print(materials_in_sentence)
-                    m_m = get_materials_amounts(sentence, materials_in_sentence)
-                    # print(sentence)
-                    materials_and_amounts = m_m.final_result()
-                    if materials_and_amounts:
-                        for material in materials_and_amounts:
-                            if material in materials_and_amounts_in_paragraph.keys():
-                                materials_and_amounts_in_paragraph[
-                                    material
-                                ] += materials_and_amounts[material]
-                            else:
-                                materials_and_amounts_in_paragraph[
-                                    material
-                                ] = materials_and_amounts[material]
-                print(paragraph)
-                print(paragraph_info["materials"])
-                print(materials_and_amounts_in_paragraph)
-                paragraph_info["amounts"] = materials_and_amounts_in_paragraph
-                all_paragraphs_info.append(paragraph_info)
-                # if paragraph_number == 10:
-                #     break
-
-            except Exception as e:
-                print("bug", paragraph)
-                print(e)
-                continue
-    with open("m_m_large_data2.json", "w") as fw:
-        json.dump(all_paragraphs_info, fw, indent=2, default=json_util.default)
-    print(len(all_paragraphs_info))
+    # with open("filtered_large_data2.json", encoding="utf-8") as f:
+    #     test = json.load(f)
+    #     paragraph_number = 0
+    #     all_paragraphs_info = []
+    #     print(len(test))
+    #     for element in test:
+    #         try:
+    #             paragraph_info = {}
+    #             paragraph_number += 1
+    #             materials_and_amounts_in_paragraph = {}
+    #             print(paragraph_number)
+    #             paragraph = element["paragraph_text"]
+    #             materials_list = element["materials"]["all_materials"]
+    #             # print(materials_list)
+    #             paragraph_info["DOI"] = element["doi"]
+    #             paragraph_info["paragraph"] = paragraph
+    #             paragraph_info["materials"] = [p["text"] for p in materials_list]
+    #             targets_list1 = element["materials"]["target"]
+    #             targets_list2 = element["abstract_materials"]["target"]
+    #             if targets_list1:
+    #                 targets_list = targets_list1
+    #             else:
+    #                 targets_list = targets_list2
+    #             paragraph_info["targets"] = [p["text"] for p in targets_list]
+    #             print(paragraph_info["targets"])
+    #             sentences = CDEcutsentences(paragraph)
+    #             for sentence in sentences:
+    #                 materials_and_amounts = {}
+    #                 materials_in_sentence = materialsinsentence(
+    #                     sentence, materials_list
+    #                 )
+    #                 # print(materials_in_sentence)
+    #                 m_m = get_materials_amounts(sentence, materials_in_sentence)
+    #                 # print(sentence)
+    #                 materials_and_amounts = m_m.final_result()
+    #                 if materials_and_amounts:
+    #                     for material in materials_and_amounts:
+    #                         if material in materials_and_amounts_in_paragraph.keys():
+    #                             materials_and_amounts_in_paragraph[
+    #                                 material
+    #                             ] += materials_and_amounts[material]
+    #                         else:
+    #                             materials_and_amounts_in_paragraph[
+    #                                 material
+    #                             ] = materials_and_amounts[material]
+    #             print(paragraph)
+    #             print(paragraph_info["materials"])
+    #             print(materials_and_amounts_in_paragraph)
+    #             paragraph_info["amounts"] = materials_and_amounts_in_paragraph
+    #             all_paragraphs_info.append(paragraph_info)
+    #             # if paragraph_number == 10:
+    #             #     break
+    #
+    #         except Exception as e:
+    #             print("bug", paragraph)
+    #             print(e)
+    #             continue
+    # with open("m_m_large_data2.json", "w") as fw:
+    #     json.dump(all_paragraphs_info, fw, indent=2, default=json_util.default)
+    # print(len(all_paragraphs_info))
 
     # with open("filtered_small_data.json", encoding="utf-8") as f:
     #     test = json.load(f)
