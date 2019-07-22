@@ -556,11 +556,16 @@ def materialsinsentence(sentence, materials_in_paragraph):
             materials_in_sentence.append(material["text"])
     return materials_in_sentence
 
-
-stanford_parser_folder = "rsc/stanfordParser"
-stanford_model_path = "rsc/stanfordParser/englishPCFG.ser.gz"
+file_path = os.path.dirname(__file__)
+stanford_parser_folder = os.path.join(file_path, 'rsc/stanfordParser')
+stanford_model_path = os.path.join(file_path, 'rsc/stanfordParser/englishPCFG.ser.gz')
+# stanford_parser_folder = "rsc/stanfordParser"
+# stanford_model_path = "rsc/stanfordParser/englishPCFG.ser.gz"
 os.environ["STANFORD_PARSER"] = stanford_parser_folder
+os.environ["CLASSPATH"] = stanford_parser_folder
 os.environ["STANFORD_MODELS"] = stanford_parser_folder
+
+# print(os.environ)
 
 tree_parser = stanford.StanfordParser(model_path=stanford_model_path)
 
