@@ -1,6 +1,5 @@
 import os
 from nltk.parse import stanford
-import chemdataextractor as CDE
 from chemdataextractor.doc import Paragraph
 from nltk.tree import ParentedTree
 from operations_extractor.operations_extractor import OperationsExtractor
