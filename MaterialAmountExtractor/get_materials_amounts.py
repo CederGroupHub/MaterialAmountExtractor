@@ -135,7 +135,83 @@ class GetMaterialsAmounts:
         i = 0
         unit_list = ['mol%', 'wt.%', 'wt%', '× 10-1 mol L-1', "mol L\u22121", "mol L-1", 'm mol', "mol L−1", 'mol dm-3',
                      "g L−1", 'g L-1', 'mol/mL', 'mg mL-1', "mg mL−1", 'mmol/l', "mmol", "L-1", "μL", 'mol/l', "mol/L",
-                     "mM", 'mol L- 1']
+                     "mM", 'mol L- 1',
+                     'mg/ml',
+                     'mg/μl',
+                     'mg/l',
+                     'mg ml-1'
+                     'mg μl-1',
+                     'mg l-1',
+                     'mmol/ml',
+                     'mmol/μl',
+                     'mmol/l',
+                     'mmol ml-1'
+                     'mmol μl-1',
+                     'mmol l-1',
+                     'μg/ml',
+                     'μg/μl',
+                     'μg/l',
+                     'μg ml-1'
+                     'μg μl-1',
+                     'μg l-1',
+                     'μmol/ml',
+                     'μmol/μl',
+                     'μmol/l',
+                     'μmol ml-1'
+                     'μmol μl-1',
+                     'μmol l-1',
+                     'g/ml',
+                     'g/μl',
+                     'g/l',
+                     'g ml-1'
+                     'g μl-1',
+                     'g l-1',
+                     'mol/ml',
+                     'mol/μl',
+                     'mol/l',
+                     'mol ml-1'
+                     'mol μl-1',
+                     'mol l-1',
+                     'mg/mL',
+                     'mg/μL',
+                     'mg/L',
+                     'mg mL-1'
+                     'mg μL-1',
+                     'mg L-1',
+                     'mmol/mL',
+                     'mmol/μL',
+                     'mmol/L',
+                     'mmol mL-1'
+                     'mmol μL-1',
+                     'mmol L-1',
+                     'μg/mL',
+                     'μg/μL',
+                     'μg/L',
+                     'μg mL-1'
+                     'μg μL-1',
+                     'μg L-1',
+                     'μmol/mL',
+                     'μmol/μL',
+                     'μmol/L',
+                     'μmol mL-1'
+                     'μmol μL-1',
+                     'μmol L-1',
+                     'g/mL',
+                     'g/μL',
+                     'g/L',
+                     'g mL-1'
+                     'g μL-1',
+                     'g L-1',
+                     'mol/mL',
+                     'mol/μL',
+                     'mol/L',
+                     'mol mL-1'
+                     'mol μL-1',
+                     'mol L-1',
+                     'μM',
+                     'nM',
+                     'm']
+        unit_list.sort(key=len, reverse=True)
         for unit in unit_list:
             while unit in self.sentence:
                 index_start = self.sentence.index(unit)
@@ -236,10 +312,87 @@ class GetMaterialsAmounts:
 
     def find_amounts_for_materials_tree(self, tree_list, materials_in_subsentence):
         Material_and_amounts = {}
-        unit_list = ['g', 'mg', 'mmol', 'ml', 'mL', '%', 'M', 'mM', 'cm3', 'mol%', 'wt.%', 'wt', 'mol L-1', 'mol L−1',
+        unit_list = ['g', 'mg', 'mmol', 'l', 'ml', 'mL', '%', 'M', 'mM', 'cm3', 'mol%', 'wt.%', 'wt', 'mol L-1', 'mol L−1',
                      'mol L−1', 'mg mL−1', 'L', '-', '−', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', 'mol',
-                     'L-1', 'μL', 'mol/L', 'cc', 'mol L-1', 'mol L- 1', '× 10-1 mol L-1', 'mol/mL', 'mol dm-3',
-                     'mmol/l', 'mol/l', 'm mol', 'mg mL-1', 'wt%', 'g L-1']
+                     'L-1', 'μL', 'μl', 'mol/L', 'cc', 'mol L-1', 'mol L- 1', '× 10-1 mol L-1', 'mol/mL', 'mol dm-3',
+                     'mmol/l', 'mol/l', 'm mol', 'mg mL-1', 'wt%', 'g L-1',
+                     'mg/ml',
+                     'mg/μl',
+                     'mg/l',
+                     'mg ml-1'
+                     'mg μl-1',
+                     'mg l-1',
+                     'mmol/ml',
+                     'mmol/μl',
+                     'mmol/l',
+                     'mmol ml-1'
+                     'mmol μl-1',
+                     'mmol l-1',
+                     'μg/ml',
+                     'μg/μl',
+                     'μg/l',
+                     'μg ml-1'
+                     'μg μl-1',
+                     'μg l-1',
+                     'μmol/ml',
+                     'μmol/μl',
+                     'μmol/l',
+                     'μmol ml-1'
+                     'μmol μl-1',
+                     'μmol l-1',
+                     'g/ml',
+                     'g/μl',
+                     'g/l',
+                     'g ml-1'
+                     'g μl-1',
+                     'g l-1',
+                     'mol/ml',
+                     'mol/μl',
+                     'mol/l',
+                     'mol ml-1'
+                     'mol μl-1',
+                     'mol l-1',
+                     'mg/mL',
+                     'mg/μL',
+                     'mg/L',
+                     'mg mL-1'
+                     'mg μL-1',
+                     'mg L-1',
+                     'mmol/mL',
+                     'mmol/μL',
+                     'mmol/L',
+                     'mmol mL-1'
+                     'mmol μL-1',
+                     'mmol L-1',
+                     'μg/mL',
+                     'μg/μL',
+                     'μg/L',
+                     'μg mL-1'
+                     'μg μL-1',
+                     'μg L-1',
+                     'μmol/mL',
+                     'μmol/μL',
+                     'μmol/L',
+                     'μmol mL-1'
+                     'μmol μL-1',
+                     'μmol L-1',
+                     'g/mL',
+                     'g/μL',
+                     'g/L',
+                     'g mL-1'
+                     'g μL-1',
+                     'g L-1',
+                     'mol/mL',
+                     'mol/μL',
+                     'mol/L',
+                     'mol mL-1'
+                     'mol μL-1',
+                     'mol L-1',
+                     'μM',
+                     'nM',
+                     'm']
+
+        unit_list.sort(key=len, reverse=True)
 
         def isnumber(string):
             try:
@@ -255,14 +408,28 @@ class GetMaterialsAmounts:
                     if isnumber(element):
                         unit_index = i + 1
                         if unit_index < len(tree_list):
-                            if tree_list[unit_index] in unit_list:
+                            # Account for scientific notation
+                            if tree_list[unit_index] == '×':
+                                if i+5 < len(tree_list) and tree_list[i+3] == '^':
+                                    # Account for 10^<digit> case
+                                    element = element + tree_list[i+1] + tree_list[i+2] + tree_list[i+3] + tree_list[i+4]
+                                    tree_list[i+1] == 'SCINO' + tree_list[i+1] # mask 10 base
+                                    tree_list[i+4] == 'SCINO' + tree_list[i+4] # mask exponent
+                                    unit_index = i + 5
+                                elif i+3 < len(tree_list):
+                                    element = element + tree_list[i+1] + tree_list[i+2]
+                                    tree_list[i+2] == 'SCINO' + tree_list[i+2] # mask 10 base and exponent
+                                    unit_index = i + 3
+
+                            if tree_list[unit_index] in unit_list or tree_list[unit_index].lower() in unit_list:
                                 amounts.append(element)
                                 amounts.append(tree_list[unit_index])
                                 Material_and_amounts[material] = amounts
+                                continue
         return Material_and_amounts
 
     def get_new_cut_list(self):
-        operation_labels, operation_in_sent = oe.get_operations_labels(self.sent_toks)
+        operation_in_sent = oe.get_operations_labels(self.sent_toks)
         self.cut_list += operation_in_sent
 
     def clean_brackets(self):
@@ -277,6 +444,7 @@ class GetMaterialsAmounts:
         return self.sent_toks
 
     def clean_sentence(self):
+        self.sentence = self.sentence.replace('\u2212', '-')
         while "at the same time" in self.sentence:
             self.sentence = self.sentence.replace("at the same time", "and")
         while "with the addition" in self.sentence:
@@ -343,19 +511,28 @@ class GetMaterialsAmounts:
             self.materials_and_amounts = materials_and_amounts
             return self.materials_and_amounts
 
-
-
-stanford_parser_folder = "rsc/stanfordParser"
-stanford_model_path = "rsc/stanfordParser/englishPCFG.ser.gz"
+file_path = os.path.dirname(__file__)
+stanford_parser_folder = os.path.join(file_path, 'rsc/stanfordParser')
+stanford_model_path = os.path.join(file_path, 'rsc/stanfordParser/englishPCFG.ser.gz')
+# stanford_parser_folder = "rsc/stanfordParser"
+# stanford_model_path = "rsc/stanfordParser/englishPCFG.ser.gz"
 os.environ["STANFORD_PARSER"] = stanford_parser_folder
+os.environ["CLASSPATH"] = stanford_parser_folder
 os.environ["STANFORD_MODELS"] = stanford_parser_folder
+
+# print(os.environ)
 
 tree_parser = stanford.StanfordParser(model_path=stanford_model_path)
 
 if __name__ == "__main__":
     materials_in_sentence = ["NaOH", "ZnCl2", "SnCl4"]
-    sentence = "In a common preparation, equal volume of 0.6 mol L−1 NaOH and 0.1 mol L−1 ZnCl2 aqueous solution " \
+    gold_mats = [
+        'citrate',
+        'HAuCl4',
+    ]
+    sentence = "In a common preparation, equal volume of 0.6×10-4 mmol NaOH and 0.1 mol L−1 ZnCl2 aqueous solution " \
                "was added into subsequently 0.1 mol L−1 SnCl4 solution with magnetic stirring at room temperature."
-    m_m = GetMaterialsAmounts(sentence, materials_in_sentence)
+    gold_sent = "AuNSs were prepared following a seed mediated growth method already reported.The seed solution was prepared by adding 5 mL of 34 × 10−3 m citrate solution to 95 mL of boiling 0.5 × 10−3 m HAuCl4 solution under vigorous stirring."
+    m_m = GetMaterialsAmounts(gold_sent, gold_mats)
     print(m_m.final_result())
     print("down!")
