@@ -391,7 +391,8 @@ class GetMaterialsAmounts:
                      'mol μL-1',
                      'mol L-1',
                      'μM',
-                     'nM',]
+                     'nM',
+                     'm']
 
         unit_list.sort(key=len, reverse=True)
         print(unit_list[0])
