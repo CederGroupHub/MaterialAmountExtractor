@@ -7,6 +7,8 @@ import copy
 
 oe = OperationsExtractor()
 
+os.environ["TOKENIZERS_PARALLELISM"] = "false"
+
 
 class GetMaterialsAmounts:
     def __init__(self, sentence, materials_in_sentence):
@@ -209,8 +211,8 @@ class GetMaterialsAmounts:
                      'mol μL-1',
                      'mol L-1',
                      'μM',
-                     'nM',
-                     'm']
+                     'nM'
+                     ]
         unit_list.sort(key=len, reverse=True)
         for unit in unit_list:
             while unit in self.sentence:
@@ -389,10 +391,10 @@ class GetMaterialsAmounts:
                      'mol μL-1',
                      'mol L-1',
                      'μM',
-                     'nM',
-                     'm']
+                     'nM',]
 
         unit_list.sort(key=len, reverse=True)
+        print(unit_list[0])
 
         def isnumber(string):
             try:
@@ -405,6 +407,7 @@ class GetMaterialsAmounts:
             if material in tree_list:
                 amounts = []
                 for i, element in enumerate(tree_list):
+                    print(element)
                     if isnumber(element):
                         unit_index = i + 1
                         if unit_index < len(tree_list):
