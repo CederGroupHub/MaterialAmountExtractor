@@ -2,10 +2,8 @@ import os
 from nltk.parse import stanford
 from chemdataextractor.doc import Paragraph
 from nltk.tree import ParentedTree
-from operations_extractor.operations_extractor import OperationsExtractor
 import copy
 
-oe = OperationsExtractor()
 
 
 class GetMaterialsAmounts:
@@ -262,8 +260,9 @@ class GetMaterialsAmounts:
         return Material_and_amounts
 
     def get_new_cut_list(self):
-        operation_labels, operation_in_sent = oe.get_operations_labels(self.sent_toks)
-        self.cut_list += operation_in_sent
+        pass
+        # operation_labels, operation_in_sent = oe.get_operations_labels(self.sent_toks)
+        # self.cut_list += operation_in_sent
 
     def clean_brackets(self):
         while "(" in self.sent_toks:
@@ -358,4 +357,4 @@ if __name__ == "__main__":
                "was added into subsequently 0.1 mol L−1 SnCl4 solution with magnetic stirring at room temperature."
     m_m = GetMaterialsAmounts(sentence, materials_in_sentence)
     print(m_m.final_result())
-    print("down!")
+    print("Done!")
