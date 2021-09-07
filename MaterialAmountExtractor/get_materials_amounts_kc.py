@@ -403,7 +403,10 @@ class GetMaterialsAmounts:
                 float(string)
                 return True
             except:
-                return False
+                if string.startswith('10') and '-' in string:
+                    return True
+                else:
+                    return False
 
         for material in materials_in_subsentence:
             if material in tree_list:
@@ -436,7 +439,6 @@ class GetMaterialsAmounts:
                                     unit_index = i + 6
                                 # Account for combined 10 base and exponent case (positive or negative)
                                 elif i+3 < len(tree_list) and len(tree_list[i+2])>2 and tree_list[i+2].startswith('10'):
-                                    print('here 2')
                                     base_10 = tree_list[i+2][:2]
                                     exponent = tree_list[i+2][2:]
                                     element = element + tree_list[i+1] + base_10 + '^' + exponent
@@ -451,6 +453,15 @@ class GetMaterialsAmounts:
                                     tree_list[i+3] = 'SCINO' + tree_list[i+3] # mask negative
                                     tree_list[i+4] = 'SCINO' + tree_list[i+4] # mask exponent digit
                                     unit_index = i + 5
+                            elif element.startswith('10'):
+                                if i+1 < len(tree_list) and '-' in element and len(element) > 3:
+                                    element = '1.0×' + element[:2] + '^' + element[2:]
+                                    unit_index = i + 1
+                                elif i+3 < len(tree_list) and tree_list[i+1] == '-' and isnumber(tree_list[i+2]):
+                                    element = '1.0×' + element + '^' + tree_list[i+1] + tree_list[i+2]
+                                    tree_list[i+1] = 'SCINO' + tree_list[i+1]
+                                    tree_list[i+2] = 'SCINO' + tree_list[i+2]
+                                    unit_index = i + 3
 
                             if tree_list[unit_index] in unit_list or tree_list[unit_index].lower() in unit_list:
                                 amounts.append(element)
@@ -582,7 +593,7 @@ if __name__ == "__main__":
     ]
     sentence = "In a common preparation, equal volume of 0.6×10-16 mmol NaOH and 0.1 mol L−1 ZnCl2 aqueous solution " \
                "was added into subsequently 0.1 mol L−1 SnCl4 solution with magnetic stirring at room temperature."
-    gold_sent = "AuNSs were prepared following a seed mediated growth method already reported.The seed solution was prepared by adding 5 mL of 34×10^3 m citrate solution to 95 mL of boiling 0.5 × 10\u22123 m HAuCl4 solution under vigorous stirring."
+    gold_sent = "AuNSs were prepared following a seed mediated growth method already reported.The seed solution was prepared by adding 5 mL of 10- 3 m citrate solution to 95 mL of boiling 0.5 × 10\u22123 m HAuCl4 solution under vigorous stirring."
     m_m = GetMaterialsAmounts(gold_sent, gold_mats)
     print(m_m.final_result())
     print("down!")
