@@ -411,7 +411,6 @@ class GetMaterialsAmounts:
                 #print('\n')
                 #print(material)
                 for i, element in enumerate(tree_list):
-                    print(element)
                     if isnumber(element):
                         unit_index = i + 1
                         if unit_index < len(tree_list):
