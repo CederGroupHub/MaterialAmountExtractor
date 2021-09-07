@@ -139,7 +139,7 @@ class GetMaterialsAmounts:
         i = 0
         unit_list = ['mol%', 'wt.%', 'wt%', '× 10-1 mol L-1', "mol L\u22121", "mol L-1", 'm mol', "mol L−1", 'mol dm-3',
                      "g L−1", 'g L-1', 'mol/mL', 'mg mL-1', "mg mL−1", 'mmol/l', "mmol", "L-1", "μL", 'mol/l', "mol/L",
-                     "mM", 'mol L- 1',
+                     "mM", 'mm', 'mol L- 1',
                      'mg/ml',
                      'mg/μl',
                      'mg/l',
@@ -264,13 +264,35 @@ class GetMaterialsAmounts:
                 if len(intersection_list) == 1:
                     findTheTree(parent)
                 else:
-                    if subtree.leaves() not in subtree_list:
-                        subtree_list.append(subtree.leaves())
+                    # bring in parentheticals that might be outside of tree
+                    subtree_leaves = subtree.leaves()
+                    if subtree_leaves[-1] in materials_in_subsentence:
+                        if subtrees[i+1][0] == '-LRB-':
+                            missing_parenthetical = subtrees[i+1].parent().leaves()
+                            subtree_leaves.extend(missing_parenthetical)
+                            print('\n')
+                            print(subtree_leaves)
+                            print('\n')
+                    if subtree_leaves not in subtree_list:
+                        subtree_list.append(subtree_leaves)
             else:
-                if subtree.leaves() not in subtree_list:
-                    subtree_list.append(subtree.leaves())
+                # bring in parentheticals that might be outside of tree
+                subtree_leaves = subtree.leaves()
+                if subtree_leaves[-1] in materials_in_subsentence:
+                    if subtrees[i+1][0] == '-LRB-':
+                        print('=============')
+                        print(subtree_leaves)
+                        missing_parenthetical = subtrees[i+1].parent().leaves()
+                        subtree_leaves.extend(missing_parenthetical)
+                        print('\n')
+                        print(subtree_leaves)
+                        print('\n')
+                if subtree_leaves not in subtree_list:
+                    subtree_list.append(subtree_leaves)
 
-        for subtree in Tree.subtrees(lambda t: t.height() == 2):  # 找tag-word对
+        subtrees = [subtree for subtree in Tree.subtrees(lambda t: t.height() == 2)]
+
+        for i, subtree in enumerate(subtrees):  # 找tag-word对
             leave_values = subtree.leaves()
 
             for material in materials_in_subsentence:
@@ -278,6 +300,7 @@ class GetMaterialsAmounts:
                     parent = subtree.parent()
                     if parent:
                         leave_values = parent.leaves()
+                        # looking for multiple materials in a parent
                         intersection_list = [
                             i for i in leave_values if i in materials_in_subsentence
                         ]
@@ -316,7 +339,7 @@ class GetMaterialsAmounts:
 
     def find_amounts_for_materials_tree(self, tree_list, materials_in_subsentence):
         Material_and_amounts = {}
-        unit_list = ['g', 'mg', 'mmol', 'l', 'ml', 'mL', '%', 'M', 'mM', 'cm3', 'mol%', 'wt.%', 'wt', 'mol L-1', 'mol L−1',
+        unit_list = ['g', 'mg', 'mmol', 'l', 'ml', 'mL', '%', 'M', 'mM', 'mm', 'cm3', 'mol%', 'wt.%', 'wt', 'mol L-1', 'mol L−1',
                      'mol L−1', 'mg mL−1', 'L', '-', '−', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', 'mol',
                      'L-1', 'μL', 'μl', 'mol/L', 'cc', 'mol L-1', 'mol L- 1', '× 10-1 mol L-1', 'mol/mL', 'mol dm-3',
                      'mmol/l', 'mol/l', 'm mol', 'mg mL-1', 'wt%', 'g L-1',
@@ -475,10 +498,10 @@ class GetMaterialsAmounts:
         self.cut_list += operation_in_sent
 
     def clean_brackets(self):
-        while "(" in self.sent_toks:
-            self.sent_toks.remove("(")
-        while ")" in self.sent_toks:
-            self.sent_toks.remove(")")
+        #while "(" in self.sent_toks:
+        #    self.sent_toks.remove("(")
+        #while ")" in self.sent_toks:
+        #    self.sent_toks.remove(")")
         while "respectively" in self.sent_toks:
             self.sent_toks.remove("respectively")
         while "of" in self.sent_toks:
@@ -492,6 +515,9 @@ class GetMaterialsAmounts:
 
         # clean unicode spaces
         self.sentence = self.sentence.replace('\u202f', ' ')
+
+        # clean plus signs
+        self.sentence = self.sentence.replace('+', ', ')
 
         # replace "and" synonyms
         for phrase in self.and_list:
@@ -588,12 +614,14 @@ tree_parser = stanford.StanfordParser(model_path=stanford_model_path)
 if __name__ == "__main__":
     materials_in_sentence = ["NaOH", "ZnCl2", "SnCl4"]
     gold_mats = [
-        'citrate',
-        'HAuCl4',
+        'TOAB',
+        'toluene'
     ]
     sentence = "In a common preparation, equal volume of 0.6×10-16 mmol NaOH and 0.1 mol L−1 ZnCl2 aqueous solution " \
                "was added into subsequently 0.1 mol L−1 SnCl4 solution with magnetic stirring at room temperature."
-    gold_sent = "AuNSs were prepared following a seed mediated growth method already reported.The seed solution was prepared by adding 5 mL of 10- 3 m citrate solution to 95 mL of boiling 0.5 × 10\u22123 m HAuCl4 solution under vigorous stirring."
+    gold_sent = 'In parallel, a solution of TOAB ' \
+                '(0.200 g, 0.366 mmol) in toluene ' \
+                '(8.125 mL) was prepared.'
     m_m = GetMaterialsAmounts(gold_sent, gold_mats)
     print(m_m.final_result())
     print("down!")
