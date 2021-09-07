@@ -10,12 +10,12 @@ oe = OperationsExtractor()
 
 os.environ["TOKENIZERS_PARALLELISM"] = "false"
 
-
 class GetMaterialsAmounts:
     def __init__(self, sentence, materials_in_sentence):
         self.sentence = sentence
         self.materials_in_sentence = materials_in_sentence
         self.cut_list = ["and", "to", "presence", "into", "at the same time", ":"]
+        self.and_list = ["at the same time", "with the addition", "by the addition"]
         self.sentence_cp = copy.deepcopy(self.sentence)
         self.subsentens_list = []
         self.subsentens_list_refine = []
@@ -276,7 +276,6 @@ class GetMaterialsAmounts:
             for material in materials_in_subsentence:
                 if material in leave_values:
                     parent = subtree.parent()
-                    print(parent)
                     if parent:
                         leave_values = parent.leaves()
                         intersection_list = [
@@ -409,24 +408,50 @@ class GetMaterialsAmounts:
         for material in materials_in_subsentence:
             if material in tree_list:
                 amounts = []
-                print('\n')
-                print(material)
+                #print('\n')
+                #print(material)
                 for i, element in enumerate(tree_list):
+                    print(element)
                     if isnumber(element):
                         unit_index = i + 1
                         if unit_index < len(tree_list):
                             # Account for scientific notation
+                            # all results should have form <num>×10^(-)<num>
                             if tree_list[unit_index] == '×':
-                                if i+5 < len(tree_list) and tree_list[i+3] == '^':
-                                    # Account for 10^<digit> case
+                                # Account for 10^<digit> case and combined exponent if negative
+                                if i+5 < len(tree_list) and tree_list[i+3] == '^' and isnumber(tree_list[i+4]):
                                     element = element + tree_list[i+1] + tree_list[i+2] + tree_list[i+3] + tree_list[i+4]
-                                    tree_list[i+1] == 'SCINO' + tree_list[i+1] # mask 10 base
-                                    tree_list[i+4] == 'SCINO' + tree_list[i+4] # mask exponent
+                                    tree_list[i+1] = 'SCINO' + tree_list[i+1] # mask multiplication
+                                    tree_list[i+2] = 'SCINO' + tree_list[i+2] # mask 10 base
+                                    tree_list[i+3] = 'SCINO' + tree_list[i+3] # mask carot
+                                    tree_list[i+4] = 'SCINO' + tree_list[i+4] # mask exponent
                                     unit_index = i + 5
-                                elif i+3 < len(tree_list):
-                                    element = element + tree_list[i+1] + tree_list[i+2]
-                                    tree_list[i+2] == 'SCINO' + tree_list[i+2] # mask 10 base and exponent
+                                # Account for 10^<digit> case and separated negative exponent
+                                elif i+6 < len(tree_list) and tree_list[i+3] == '^' and isnumber(tree_list[i+5]):
+                                    element = element + tree_list[i+1] + tree_list[i+2] + tree_list[i+3] + tree_list[i+4] + tree_list[i+5]
+                                    tree_list[i+1] = 'SCINO' + tree_list[i+1] # mask multiplication
+                                    tree_list[i+2] = 'SCINO' + tree_list[i+2] # mask 10 base
+                                    tree_list[i+3] = 'SCINO' + tree_list[i+3] # mask carot
+                                    tree_list[i+4] = 'SCINO' + tree_list[i+4] # mask negative
+                                    tree_list[i+5] = 'SCINO' + tree_list[i+5] # mask exponent digit
+                                    unit_index = i + 6
+                                # Account for combined 10 base and exponent case (positive or negative)
+                                elif i+3 < len(tree_list) and len(tree_list[i+2])>2 and tree_list[i+2].startswith('10'):
+                                    print('here 2')
+                                    base_10 = tree_list[i+2][:2]
+                                    exponent = tree_list[i+2][2:]
+                                    element = element + tree_list[i+1] + base_10 + '^' + exponent
+                                    tree_list[i+1] = 'SCINO' + tree_list[i+1] # mask multiplication
+                                    tree_list[i+2] = 'SCINO' + tree_list[i+2] # mask 10 base and exponent
                                     unit_index = i + 3
+                                # Account for separated 10 base and negative exponent case
+                                elif i+5 < len(tree_list) and tree_list[i+3] == '-' and isnumber(tree_list[i+4]):
+                                    element = element + tree_list[i+1] + tree_list[i+2] + '^' + tree_list[i+3] + tree_list[i+4]
+                                    tree_list[i+1] = 'SCINO' + tree_list[i+1] # mask multiplication
+                                    tree_list[i+2] = 'SCINO' + tree_list[i+2] # mask 10 base
+                                    tree_list[i+3] = 'SCINO' + tree_list[i+3] # mask negative
+                                    tree_list[i+4] = 'SCINO' + tree_list[i+4] # mask exponent digit
+                                    unit_index = i + 5
 
                             if tree_list[unit_index] in unit_list or tree_list[unit_index].lower() in unit_list:
                                 amounts.append(element)
@@ -451,29 +476,42 @@ class GetMaterialsAmounts:
         return self.sent_toks
 
     def clean_sentence(self):
-        self.sentence = self.sentence.replace('\u2212', '-')
-        while "at the same time" in self.sentence:
-            self.sentence = self.sentence.replace("at the same time", "and")
-        while "with the addition" in self.sentence:
-            self.sentence = self.sentence.replace("with the addition", "and")
-        while "by the addition" in self.sentence:
-            self.sentence = self.sentence.replace("by the addition", "and")
 
+        # clean unicode hyphens
+        self.sentence = self.sentence.replace('\u2212', '-')
+
+        # clean unicode spaces
+        self.sentence = self.sentence.replace('\u202f', ' ')
+
+        # replace "and" synonyms
+        for phrase in self.and_list:
+            while phrase in self.sentence:
+                self.sentence = self.sentence.replace(phrase, "and")
+
+        # separate erroneously conjoined sentences
         conjoined_sent_re = re.compile('[a-z]\.[A-Z]')
         if conjoined_sent_re.search(self.sentence):
             portion = conjoined_sent_re.search(self.sentence)[0]
             self.sentence = re.sub('[a-z]\.[A-Z]', portion[:2] + " " + portion[-1], self.sentence)
 
+        #if "×" in self.sentence and
+
+        # separate erroneously conjoined units and values (might need to rework)
+        conjoined_unit_val_re = re.compile('[mM]\d')
+        if conjoined_unit_val_re.search(self.sentence):
+            portion = conjoined_unit_val_re.search(self.sentence)[0]
+            self.sentence = re.sub('[mM]\d', portion[0] + " " + portion[-1], self.sentence)
+
+        # remove redundant "stainless steel" material when "telflon" also present
         if (
-                "stainless-steel" in self.materials_in_sentence
+                (
+                    "stainless-steel" in self.materials_in_sentence or
+                    "stainless steel" in self.materials_in_sentence
+                )
                 and "Teflon" in materials_in_sentence
         ):
             self.materials_in_sentence.remove("stainless-steel")
-        if (
-                "stainless steel" in self.materials_in_sentence
-                and "Teflon" in materials_in_sentence
-        ):
-            self.materials_in_sentence.remove("stainless steel")
+
         return self.sentence
 
     def find_materials_in_subsentence(self, sent):
@@ -500,8 +538,6 @@ class GetMaterialsAmounts:
                 materials_in_subsentence = self.find_materials_in_subsentence(sent)
                 result = tree_parser.raw_parse(sent)
                 result = next(result)
-
-                print(result)
 
                 final_tree = self.clean_MAT_for_Tree(result)
                 LargestTree_list = self.find_largest_tree_for_materials(
@@ -545,9 +581,9 @@ if __name__ == "__main__":
         'citrate',
         'HAuCl4',
     ]
-    sentence = "In a common preparation, equal volume of 0.6×10-4 mmol NaOH and 0.1 mol L−1 ZnCl2 aqueous solution " \
+    sentence = "In a common preparation, equal volume of 0.6×10-16 mmol NaOH and 0.1 mol L−1 ZnCl2 aqueous solution " \
                "was added into subsequently 0.1 mol L−1 SnCl4 solution with magnetic stirring at room temperature."
-    gold_sent = "AuNSs were prepared following a seed mediated growth method already reported.The seed solution was prepared by adding 5 mL of 34 × 10−3 m citrate solution to 95 mL of boiling 0.5 × 10−3 m HAuCl4 solution under vigorous stirring."
+    gold_sent = "AuNSs were prepared following a seed mediated growth method already reported.The seed solution was prepared by adding 5 mL of 34×10^3 m citrate solution to 95 mL of boiling 0.5 × 10\u22123 m HAuCl4 solution under vigorous stirring."
     m_m = GetMaterialsAmounts(gold_sent, gold_mats)
     print(m_m.final_result())
     print("down!")
