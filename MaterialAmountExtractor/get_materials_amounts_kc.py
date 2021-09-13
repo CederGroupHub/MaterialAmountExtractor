@@ -267,26 +267,40 @@ class GetMaterialsAmounts:
                     # bring in parentheticals that might be outside of tree
                     subtree_leaves = subtree.leaves()
                     if subtree_leaves[-1] in materials_in_subsentence:
-                        if subtrees[i+1][0] == '-LRB-':
+                        if i+1<len(subtrees) and subtrees[i+1][0] == '-LRB-':
                             missing_parenthetical = subtrees[i+1].parent().leaves()
-                            subtree_leaves.extend(missing_parenthetical)
-                            print('\n')
-                            print(subtree_leaves)
-                            print('\n')
+                            if (
+                                not (
+                                    any([mat_leaf for mat_leaf in
+                                    missing_parenthetical if
+                                    mat_leaf in materials_in_subsentence])
+                                )
+                            ):
+                                print('=============')
+                                print("Before: ", subtree_leaves)
+                                subtree_leaves.extend(missing_parenthetical)
+                                print("After: ", subtree_leaves)
+                                print('\n')
                     if subtree_leaves not in subtree_list:
                         subtree_list.append(subtree_leaves)
             else:
                 # bring in parentheticals that might be outside of tree
                 subtree_leaves = subtree.leaves()
                 if subtree_leaves[-1] in materials_in_subsentence:
-                    if subtrees[i+1][0] == '-LRB-':
-                        print('=============')
-                        print(subtree_leaves)
+                    if i+1<len(subtrees) and subtrees[i+1][0] == '-LRB-':
                         missing_parenthetical = subtrees[i+1].parent().leaves()
-                        subtree_leaves.extend(missing_parenthetical)
-                        print('\n')
-                        print(subtree_leaves)
-                        print('\n')
+                        if (
+                            not (
+                                any([mat_leaf for mat_leaf in
+                                missing_parenthetical if
+                                mat_leaf in materials_in_subsentence])
+                            )
+                        ):
+                            print('=============')
+                            print("Before: ", subtree_leaves)
+                            subtree_leaves.extend(missing_parenthetical)
+                            print("After: ", subtree_leaves)
+                            print('\n')
                 if subtree_leaves not in subtree_list:
                     subtree_list.append(subtree_leaves)
 
@@ -614,14 +628,22 @@ tree_parser = stanford.StanfordParser(model_path=stanford_model_path)
 if __name__ == "__main__":
     materials_in_sentence = ["NaOH", "ZnCl2", "SnCl4"]
     gold_mats = [
-        'TOAB',
-        'toluene'
+        'Lysine-Capped Gold',
+        'Au',
+        'HAuCl4'
     ]
     sentence = "In a common preparation, equal volume of 0.6×10-16 mmol NaOH and 0.1 mol L−1 ZnCl2 aqueous solution " \
                "was added into subsequently 0.1 mol L−1 SnCl4 solution with magnetic stirring at room temperature."
-    gold_sent = 'In parallel, a solution of TOAB ' \
-                '(0.200 g, 0.366 mmol) in toluene ' \
-                '(8.125 mL) was prepared.'
+    gold_sent = 'Preparation of Lysine‐Capped Gold ' \
+                'Nanoparticles: Au NPs with an ' \
+                'average diameter of 13 nm were ' \
+                'synthesized using the ' \
+                'sodium‐citrate reduction method.A ' \
+                '500 mL aqueous solution of 1 × ' \
+                '10−3 m HAuCl4 (99.99%, ' \
+                'Sigma–Aldrich) was boiled in a 1 ' \
+                'L round‐bottom flask under ' \
+                'vigorous stirring.'
     m_m = GetMaterialsAmounts(gold_sent, gold_mats)
     print(m_m.final_result())
     print("down!")
