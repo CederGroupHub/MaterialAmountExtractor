@@ -2,11 +2,12 @@ import os
 from nltk.parse import stanford
 from chemdataextractor.doc import Paragraph
 from nltk.tree import ParentedTree
-from operations_extractor.operations_extractor import OperationsExtractor
+# from operations_extractor.operations_extractor import OperationsExtractor
+from synthesis_action_retriever.synthesis_action_retriever import SynthActionRetriever
 import copy
 import re
 
-oe = OperationsExtractor()
+sar = SynthActionRetriever()
 
 os.environ["TOKENIZERS_PARALLELISM"] = "false"
 
@@ -508,8 +509,8 @@ class GetMaterialsAmounts:
         return Material_and_amounts
 
     def get_new_cut_list(self):
-        operation_in_sent = oe.get_operations_labels(self.sent_toks)
-        self.cut_list += operation_in_sent
+        action_in_sent = sar.get_action_labels(self.sent_toks)
+        self.cut_list += action_in_sent
 
     def clean_brackets(self):
         #while "(" in self.sent_toks:
